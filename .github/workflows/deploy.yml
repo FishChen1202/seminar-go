@@ -49,6 +49,8 @@ jobs:
         ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_PUBLIC_IP }} <<- 'EOF'
           # 移動到 Go 應用的目錄
           cd /home/ubuntu
+          # 停止舊的應用
+          sudo pkill -f seminar-go || true
           # 啟動 Go 應用（背景運行）
           nohup ./seminar-go &  # 使用 nohup 保證 Go 應用在背景運行且不受 SSH 斷開影響
           # 確保 Go 應用成功啟動，且重啟 Apache
