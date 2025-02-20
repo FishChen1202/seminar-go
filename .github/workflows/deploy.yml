@@ -32,6 +32,12 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa  # 從 GitHub Secrets 中獲取 SSH 密鑰
         chmod 600 ~/.ssh/id_rsa  # 設置正確的檔案權限
         echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null" >> ~/.ssh/config
+     
+    - name: Remove old files on EC2 (if exists)
+      run: |
+        ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_PUBLIC_IP }} 'rm -rf /home/ubuntu/seminar-go'
+      env:
+        EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
 
     - name: Copy binary to EC2
       run: |
