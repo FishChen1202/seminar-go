@@ -52,7 +52,7 @@ jobs:
           # 停止舊的應用
           sudo pkill -f seminar-go || true
           # 啟動 Go 應用（背景運行）
-          nohup ./seminar-go &  # 使用 nohup 保證 Go 應用在背景運行且不受 SSH 斷開影響
+          nohup ./seminar-go > /home/ubuntu/seminar-go.log 2>&1 &  # 使用 nohup 保證 Go 應用在背景運行且不受 SSH 斷開影響
           # 確保 Go 應用成功啟動，且重啟 Apache
           sudo systemctl restart apache2
         EOF
