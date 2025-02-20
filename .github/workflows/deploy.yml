@@ -1,0 +1,48 @@
+name: Go Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.24'  # 使用您的 Go 版本
+
+    - name: Install dependencies
+      run: |
+        go mod tidy  # 安裝和整理依賴
+
+    - name: Build Go project
+      run: |
+        go build -o seminar-go .  # 編譯您的 seminar-go 專案
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa  # 從 GitHub Secrets 中獲取 SSH 密鑰
+        chmod 600 ~/.ssh/id_rsa  # 設置正確的檔案權限
+
+    - name: Copy binary to EC2
+      run: |
+        scp -i ~/.ssh/id_rsa seminar-go ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/  # 將 Go 應用複製到 EC2
+
+    - name: Restart Apache on EC2
+      run: |
+        ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          # 假設您的 Go 應用名為 "seminar-go"，並且 Apache 已經配置為反向代理
+          cd /home/ubuntu
+          ./seminar-go &  # 啟動 Go 應用
+          sudo systemctl restart apache2  # 重啟 Apache 讓新應用生效
+        EOF
+      env:
+        EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}  # 在 GitHub Secrets 中設置 EC2 公共 IP
