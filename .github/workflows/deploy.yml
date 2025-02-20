@@ -31,6 +31,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa  # 從 GitHub Secrets 中獲取 SSH 密鑰
         chmod 600 ~/.ssh/id_rsa  # 設置正確的檔案權限
+        echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null" >> ~/.ssh/config
 
     - name: Copy binary to EC2
       run: |
