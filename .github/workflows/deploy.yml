@@ -39,11 +39,14 @@ jobs:
 
     - name: Restart Apache on EC2
       run: |
-        ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          # 假設您的 Go 應用名為 "seminar-go"，並且 Apache 已經配置為反向代理
+        # 使用 SSH 連接到 EC2 主機
+        ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_PUBLIC_IP }} <<- 'EOF'
+          # 移動到 Go 應用的目錄
           cd /home/ubuntu
-          ./seminar-go &  # 啟動 Go 應用
-          sudo systemctl restart apache2  # 重啟 Apache 讓新應用生效
+          # 啟動 Go 應用（背景運行）
+          nohup ./seminar-go &  # 使用 nohup 保證 Go 應用在背景運行且不受 SSH 斷開影響
+          # 確保 Go 應用成功啟動，且重啟 Apache
+          sudo systemctl restart apache2
         EOF
       env:
-        EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}  # 在 GitHub Secrets 中設置 EC2 公共 IP
+        EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
