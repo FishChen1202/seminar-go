@@ -8,7 +8,7 @@ import (
 func main() {
 	// 設定首頁路由
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Hello, World! Test Verstion 3")
+		fmt.Fprintln(w, "Hello, World! Test Verstion 4")
 	})
 
 	// 啟動伺服器，監聽在 8080 埠
